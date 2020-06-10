@@ -1,0 +1,81 @@
+#define F_CPU 16000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+
+
+int main(void)
+{
+	
+	DDRA = 0xff; // 출력모드
+	DDRD = 0x00; // 입력모드
+	DDRB = 0x00; // 입력모드
+	unsigned int on=0;
+	
+	PORTA  = 0xff;
+	while (1)
+	{
+		if((PIND & 0x01) == 0 && (PINB & 0x01) == 0) // 1
+		{
+			on = 0x01;
+			
+		}
+		if((PINB&0x01) == 0 && (PIND & 0x01) == 1) //2
+		{
+			on = 0x02;
+		
+		}
+		
+		if((PINB&0x01) == 1 && (PIND & 0x01) == 0) //2
+		{
+			on = 0x03;
+			
+		}
+		if((PINB&0x01) == 1 && (PIND & 0x01) == 1) //2
+		{
+			on = 0x04;
+			
+		}
+		
+		
+		
+		
+		if(on==1)
+		{
+			PORTA = 0xaa;
+			_delay_ms(500);
+			PORTA = 0x55;
+			_delay_ms(500);
+		
+		}
+		if(on==2)
+		{
+			PORTA = 0xcc;
+			_delay_ms(500);
+			PORTA = 0x33;
+			_delay_ms(500);
+			
+			
+		}
+		
+			if(on==3)
+			{
+				PORTA = 0x0f;
+				_delay_ms(500);
+				PORTA = 0xf0;
+				_delay_ms(500);
+				
+				
+			}
+			if(on==4)
+			{
+				PORTA = 0xff;
+				_delay_ms(500);
+				PORTA = 0x00; 
+				_delay_ms(500);
+				
+			}
+		
+		
+	}
+}
