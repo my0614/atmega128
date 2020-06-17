@@ -1,0 +1,35 @@
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+
+
+int Timer_Init(void)
+{
+	TCCR1A = (1 << COM1A1) | (1 << WGM11); // Clear OC1A on Compare match, set Fast PWM
+	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11) | (1 << CS10); // Prescaler 64
+	ICR1 = 4999; // ICR1 set to TOP
+	OCR1A = 375; // 0 degree(각도는 정해져 있음)
+	TCNT1 = 0x00; // Strating point
+}
+
+int main(void)
+{
+	DDRB = 0x20;
+	PORTB = 0x00;
+	Timer_Init();
+	while(1)
+	{
+		OCR1A = 200;
+		_delay_ms(400);
+				
+		OCR1A = 400;
+		_delay_ms(400);
+		
+		OCR1A = 600;
+		_delay_ms(400);
+
+		OCR1A = 500;
+		_delay_ms(400);		
+	}
+}
+
