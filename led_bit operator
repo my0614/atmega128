@@ -1,0 +1,6 @@
+	PORTA = led;
+			
+			if((led & 0xff) == 0x00)
+				led =0xff;
+			led =(led <<1);
+			_delay_ms(1000);
