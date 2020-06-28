@@ -1,0 +1,164 @@
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#define F_CPU 1600000UL
+#include <util/delay.h>
+#include <stdlib.h>
+volatile char speed;
+volatile unsigned char txt;
+
+volatile int x=250,j=0;
+int toogle =0,degree=0;
+/*
+void Servo()
+{
+	while(1)
+	{
+		if(toogle == 1)
+		{
+			OCR3A  = 400;
+			_delay_ms(400);
+		}
+		if(toogle == 2)
+		{
+			OCR3A = 200;
+			_delay_ms(400);
+		}
+		
+	}
+	
+}
+*/
+char rx_char(void)
+{
+	while((UCSR0A & 0x80) == 0);
+	return UDR0;
+}
+
+void tx_char(char tx_char)
+{
+	while ((UCSR0A & 0x20) == 0);
+	UDR0 = tx_char;
+}
+
+void DC_motor(int speed)
+{
+	if(speed<  0) speed=  0;
+	if(speed>100) speed=100;
+	OCR1A=speed;
+	
+}
+
+
+int num[5]={
+	0b11111001,
+	0b10100100,
+	0b10110000,
+	0b10011001,
+	0b10010010,
+	0b10000010
+};
+
+void Servo(void)
+{
+	OCR3A += 100;
+	_delay_ms(200);
+	if(OCR3A >= 700)
+	OCR3A = 200;
+	_delay_ms(200);
+	
+}
+void Servo2(void)
+{
+	OCR3A -= 100;
+	_delay_ms(200);
+	if(OCR3A <= 200)
+		OCR3A = 700;
+		_delay_ms(200);
+}
+
+int main(void)
+{
+
+	TCCR3A = (1 << COM3A1) | (1 << WGM11);
+	TCCR3B = (1 << WGM33) | (1 << WGM32) | (1 << CS31) | (1 << CS30);
+	ICR3 = 4999; // ICR1 set to TOP
+	OCR3A = 375; // 0 degree
+	TCNT3 = 0X00;
+	UCSR0A = 0x00;
+	UCSR0B = 0x98;
+	UCSR0C = 0x06;
+	UBRR0H = 0x00;
+	UBRR0L = 103;
+	TCCR1A=0xA2;		// 0010, Channel A- Enable
+	TCCR1B=0x1A;		// 1100 -> 0010 + 1100 = 1110 -> Fast PWM, 64 presclaer
+	TCCR0 = 1 << CS02 | 0 << CS01 | 0 << CS00;
+	TCNT0 -= 250;
+	TIMSK = 1<<TOIE0;
+	ICR3 = 4999;
+	OCR3A = 375;
+	TCNT3 = 0x00;
+	DDRD = 0xff;
+	PORTD = 0xff;
+	char txt;
+	int i, j = 0;
+	DDRB=0xF0;
+	PORTB = 0xf0;
+	DDRE = 0xff;
+	PORTE = 0xf0;
+	OCR1A=200;			// DC
+	OCR1B=0;			// Servo
+	ICR1=100;
+	
+	while(1)
+	{
+		
+		txt = rx_char();
+		tx_char(txt);
+		
+		
+		
+		if(txt == '1')
+		{
+			PORTD = num[0];
+			DC_motor(50);
+			
+		}
+		
+		if(txt == '2')
+		{
+			PORTD = num[1];
+			DC_motor(90);
+			
+		}
+		
+		if(txt == '3')
+		{
+			PORTD = num[2];
+			DC_motor(120);
+			
+		}
+		
+		if(txt == '4')
+		{
+			Servo();
+			PORTD = num[3];
+		}
+
+		if(txt == '5')
+		{
+			Servo2();
+			PORTD = num[4];
+		}
+		
+		if(toogle == 1)
+		{
+			Servo();
+		}
+		if(toogle == 2)
+		{
+			Servo();
+		}
+	}
+
+	return 0;
+}
