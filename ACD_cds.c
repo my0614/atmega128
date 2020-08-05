@@ -56,4 +56,7 @@ int main(void)
 		show_adc_led(value);
 	}
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> b89f89b08387622727ca4a46eeded3df4c98049c
