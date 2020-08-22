@@ -3,34 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{url_for('static', filename='main.css'}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/page.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" > </script>
     <title>Room Care</title>
 </head>
 <body>
-    <div class= "main">
+    <header>
         <span class = "tit" style="display : inline-block;">ROOM CARE</span>
         <span class = "txt" style="word-spacing: 11em;">거실 커튼 화장실 온도</span>
        
         <div class = "flex_container">
 
             <div class="livingroom" class ="flex_item">
-                <div class="bt" class ="flex_item">
+                <button id = "button">
                     ON
-                </div>
+                </button>
             </div>
+        
             <div class="livingroom" class ="flex_item">
-                <div class="bt" class ="flex_item">
+                <button id="button">
                     OFF
-                </div>
+                </button>
                 
             </div>
             <div class="livingroom" class ="flex_item">
-                <div class="bt" class ="flex_item">
+                <button id ="button">
                     ON
-                </div>
-                
+                </button>
             </div>
+          
+        
         </div>
+       
         <div class="flex_container2">
             <div class="temp" class ="flex_item2">
                 temp
@@ -39,10 +43,16 @@
                 humi
             </div>
 
-        </div>
+        </header>
         <span style="color: black;   font-size : 16px;  font-weight: bold; position: fixed;top : 400px; left: 1070px;">
             습도
         </span>
-      
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+        <script>
+           $("#bt1").click(function() {$("#bt1").animate({top : "30"}, 500);
+           });
+        </script>
 </body>
 </html>
