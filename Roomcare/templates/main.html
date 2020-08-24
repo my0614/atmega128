@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page.css') }}">
-    <script src="{{ url_for('static', filename='js/main.js') }}" > </script>
+   
+    <script type = "text/javascript" src="{{ url_for('static', filename='js/main.js') }}" > </script>
     <title>Room Care</title>
     <style>
         #button1, #button2 ,#button3
@@ -24,6 +25,8 @@
                 line-height: 100px;
                 border : none;
                 outline: none;
+                cursor: pointer;
+                
         }
     </style>
 </head>
@@ -68,8 +71,65 @@
             습도
         </span>
 
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    
+        <script type="text/javascript">
+        window.onload = function()
+            {
+                var bt1 = 0 // on 일때
+                var bt2 = 0
+                var bt3 = 0
+                document.getElementById('button1').onclick = function()
+                {
+                    if(bt1 == 0)
+                    {
+                        this.innerHTML = 'OFF';
+                        this.style.color = 'red';
+                        bt1 = 1;
+                    }
+                    else if(bt1 == 1)
+                    {
+                        this.innerHTML = 'ON';
+                        this.style.color = 'white';
+                        bt1 = 0;
+                    }
+                    
+                    
+                }
+                document.getElementById('button2').onclick = function()
+                {
+                    if(bt2 == 0)
+                    {
+                        this.innerHTML = 'OFF';
+                        this.style.color = 'red';
+                        bt2 = 1;
+                    }
+                    else if(bt2 == 1)
+                    {
+                        this.innerHTML = 'ON';
+                        this.style.color = 'white';
+                        bt2 = 0;
+                    }
+                    
+                }
+                document.getElementById('button3').onclick = function()
+                {
+                    if(bt3 == 0)
+                    {
+                        this.innerHTML = 'OFF';
+                        this.style.color = 'red';
+                        bt3 = 1;
+                    }
+                    else if(bt3 == 1)
+                    {
+                        this.innerHTML = 'ON';
+                        this.style.color = 'white';
+                        bt3 = 0;
+                    }
+                }
+            };
+        </script>
+       
 
 </body>
 </html>
