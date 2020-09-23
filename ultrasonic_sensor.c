@@ -70,7 +70,7 @@ int main(void)
 		}
 		
 
-			_delay_ms(100);
+			_delay_ms(100); //
 		
 	}
 }
