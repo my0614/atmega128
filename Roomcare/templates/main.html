@@ -10,7 +10,7 @@
     <style>
         #button1, #button2 ,#button3
         {
-            margin-left: 10px;
+                margin-left: 10px;
                 margin-top: 10px;
                 float: left;
                 background-color: rgb(112, 173, 71);
@@ -76,11 +76,13 @@
         <script type="text/javascript">
         window.onload = function()
             {
+                
                 var bt1 = 0 // on 일때
                 var bt2 = 0
                 var bt3 = 0
                 document.getElementById('button1').onclick = function()
                 {
+                    movebt(-50);
                     if(bt1 == 0)
                     {
                         this.innerHTML = 'OFF';
@@ -113,7 +115,8 @@
                     
                 }
                 document.getElementById('button3').onclick = function()
-                {
+                {   
+                    
                     if(bt3 == 0)
                     {
                         this.innerHTML = 'OFF';
@@ -128,6 +131,16 @@
                     }
                 }
             };
+
+            function movebt(num)
+            {
+                document.getElementById('button1').style.top = num + 'px';
+
+            };
+            nextBtn.addEventListener('click', function()
+            {
+                movebt(-50);
+            });
         </script>
        
 
