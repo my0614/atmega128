@@ -127,7 +127,22 @@ void LCD_wString(char *str)
 
 
 
+void buzzer()
+{
+	DDRG =0xff; //부저
+	LCD_Init();
+	LCD_Cursor(0,6);
 
+	LCD_wString("Bomb!!");
+
+
+
+	PORTG = 0xff;
+	_delay_ms(1000);
+	PORTG = 0x00;
+	_delay_ms(1000);
+	
+}
 
 int main(void)
 {
@@ -135,16 +150,19 @@ int main(void)
     char buffmin[4];
     char buffsecond[4];
 	char password[4] = {"123"};
-	char passbuf[4] = {"123"};
+	char passbuf[4] = {"000"};
 	int hour= 0,min=0,second=10;
 	
 	DDRA = 0xFF;
 	DDRC = 0xFF;
 	DDRD = 0xff; // 버튼
+	
 	LCD_Init();
 
 		while(second >= 0)
 		{
+			
+			
 			LCD_Cursor(0,3);
 			LCD_wString("Bomb TIME");
 			
@@ -160,7 +178,8 @@ int main(void)
 			LCD_wString(" : ");
 			_delay_ms(1000);
 			second--;
-			/*if((PIND & 0x01) == 0)
+			/*
+			if((PIND & 0x01) == 0)
 			{
 				strcat(passbuf,"1");
 			}
@@ -172,21 +191,20 @@ int main(void)
 			{
 				strcat(passbuf,"3");
 			}
-			*/
-			if(strcmp(password,passbuf) == 0) 
+			
+			/*if(strcmp(password,passbuf) == 0) 
 			{
 				LCD_Init();
 				LCD_Cursor(0,6);
 				LCD_wString("success");
 				_delay_ms(1000);
 				
-			}
+			}*/
 			
 		}
 		
-		LCD_Init();
-		LCD_Cursor(0,6);
-		LCD_wString("Bomb!!");
-		_delay_ms(1000);
+		buzzer(); // 부저함수
+		
 	
 }
+
