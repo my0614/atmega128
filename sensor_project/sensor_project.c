@@ -1,6 +1,3 @@
-
-
-
 /*
  * sensor_project.c
  *
@@ -17,6 +14,10 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+
+#define TRIG 6
+#define ECHO 7
+#define SOUND_VELOCITY 340UL
 
 void uart_init(unsigned int baud)
 {
@@ -52,31 +53,59 @@ void seting()
 	PORTC=0xff;
 	DDRA = 0x00;
 	DDRD = 0xff; // LED
-	PORTD = 0xff;
-	DDRG = 0x00;
-	PORTG = 0xff; // 삼색LED
+	PORTD = 0xff; 
+	DDRG = 0x00; // 부저사용하기
+	PORTG = 0xff; 
+	DDRE = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); //초음파 센서
 	
 	
 }
 
 unsigned int sensor_count =0;
 int toggle = 0;
+unsigned int distance;
 
 int main(void)
 {
 	seting(); // port설정함수	
 	uart_init(BAUDRATE(9600));
-
 	sei();
-		uart_string("hello");
+	uart_string("hello");
+	
 	while(1)
 	{
 		char str[5] = {0,};
+		
+		// 초음파 거리 센서	
+		TCCR1B = 0x03;
+		PORTE &= ~(1<<TRIG);
+		_delay_us(10);
+		PORTE |= (1<<TRIG);
+		_delay_us(10);
+		PORTE &= ~(1<<TRIG);
+		while(!(PINE & (1<<ECHO)));
+		TCNT1 = 0x0000;
+		while(PINE & (1<<ECHO));
+		TCCR1B = 0x00;
+		distance = (unsigned int)(SOUND_VELOCITY * (TCNT1 * 4 / 2) / 1000);
+		
+		//부저 울리기
 		if(sensor_count >= 3)
 		{
-				
-			PORTA = 0xff;
+			PORTG=0xff;
+			_delay_ms(1000);
+			PORTG=0x00;
+			_delay_ms(1000);
+			sprintf(str, "%s","yes"); // yes넣기
+			uart_string(str);
+			sensor_count=0;// 값초기화
+			
 		}
+		if(distance <= 70)
+		{
+			toggle = 3; // 초음파센서 감지 toggle 4번
+			
+		} 
 		if(!(PINC & 0x01)) // PINC0번
 		{
 			toggle = 1; // sound_sensor는 toggle 1번
@@ -95,10 +124,13 @@ int main(void)
 			case 1 :
 			sensor_count++; toggle = 0; PORTD=0x01; _delay_ms(100); break;
 			case 2 :
-			sensor_count++; toggle = 0; PORTD = 0x02; _delay_ms(100);  break;
+			sensor_count++; toggle = 0; PORTD = 0x02; _delay_ms(100); break;
+			case 3 :
+			sensor_count++; toggle = 0; PORTD = 0x04;_delay_ms(100); break;
 			
 		}
-		sprintf(str, "%d  ",sensor_count); // 문자열로 변환
+		
+	    sprintf(str, "%d  ",sensor_count); // 문자열로 변환
 		uart_string(str);
 		
 		
@@ -106,4 +138,3 @@ int main(void)
 		
 	}
 }
-
