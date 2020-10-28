@@ -15,8 +15,8 @@ int main(void)
 		OCR1A = 391;
 		_delay_ms(3000);
 		OCR1A = 784;
-		_delay_ms(3000);
-		
+		_delay_ms(3000);	
 	}
+
 
 }
