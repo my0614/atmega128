@@ -62,5 +62,6 @@ int main(void)
 		_delay_ms(500);
 		value = read_adc();
 		show_adc_led(value);
+
 	}
 }
