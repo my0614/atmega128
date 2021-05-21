@@ -5,6 +5,8 @@
 #define ECHO 1
 #define SOUND_VELOCITY 340UL
 
+unsigned char num[4]= { 0x06,0x5b,0x4f,0x66};
+
 void buzzer()
 {
 	DDRB =0xff; //부저사용한 포트
@@ -27,7 +29,7 @@ int main(void)
 	{
 		DDRD = 0xff;
 		DDRD = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); // 초음파센서
-		
+		DDRA =0xff;
 		TCCR1B = 0x03;
 		PORTD &= ~(1<<TRIG);
 		_delay_us(10);
@@ -44,23 +46,27 @@ int main(void)
 		// 4/2 = 왕복거리
 		if(distance <= 50)
 		{
-			PORTD = 0x10;
+			PORTD = 0xf0;
+			PORTA = num[3];
 			_delay_ms(100);
 			buzzer();
 		}
 		else if(distance <= 80)
 		{
-			PORTD = 0x30;
+			PORTD = 0x70;
+			PORTA = num[2];
 			_delay_ms(100);
 		}
 		else if(distance <= 100 )
 		{
-			PORTD = 0x70;
+			PORTD = 0x30;
+			PORTA = num[1];
 			_delay_ms(100);
 		}
 		else if(distance <= 130)
 		{
-			PORTD = 0xf0;
+			PORTD = 0x10;
+			PORTA = num[0];
 			_delay_ms(100);
 		}
 		_delay_ms(10); //
