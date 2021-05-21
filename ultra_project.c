@@ -7,6 +7,73 @@
 
 unsigned char num[4]= { 0x06,0x5b,0x4f,0x66};
 
+void Command_write(uint8_t command)
+
+{
+
+	PORTG &= ~0x02;	// RS LOW
+
+	PORTC = command;// command write
+
+	_delay_us(1);
+
+	PORTG |= 0x04;	// E HIGH
+
+	_delay_us(1);
+
+	PORTG &= ~0x04;	// E LOW
+
+	_delay_us(41);
+
+}
+
+void Data_write(uint8_t data)
+
+{
+	PORTG |= 0x02;	// RS HIGH
+	PORTC = data;	// data write
+	_delay_us(1);
+	PORTG |= 0x04;	// E HIGH
+	_delay_us(1);
+	PORTG &= ~0x04;	// E LOW
+	_delay_us(41);
+}
+
+void LCD_init(void)
+
+{
+	// function set - data 8bit, 2 line, 5x7 dot
+	Command_write(0x38);
+	Command_write(0x38);
+	// Display ON/OFF control - display ON, Cursor OFF, Cursor blink OFF
+	Command_write(0x0C);
+	// Clear display
+	Command_write(0x01);
+	_delay_ms(2);
+	// Entry Mode Set - Cursor address increase, Display Shift OFF
+	Command_write(0x06);
+}
+
+void LCD_print(char *str)
+
+{
+	uint8_t i=0;
+	while(str[i] !='\0')
+	{
+		Data_write(str[i++]);
+	}
+
+}
+
+void show()
+{
+		// set the cursor to column 0, line 1
+		Command_write(0x80);
+		// Print a message to the LCD.
+		LCD_print("Danger!!");
+		_delay_ms(1000);
+}
+
 void buzzer()
 {
 	DDRB =0xff; //부저사용한 포트
@@ -18,12 +85,17 @@ void buzzer()
 
 }
 
+
 int main(void)
 {
 	unsigned int distance;
+	DDRC = 0xFF;	// data Output
 
-	//DDRD = 0xff;
-	//DDRD = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); // 초음파센서
+	DDRG = 0x07;	// control signal Output
+
+	PORTG = 0x00;	// RW -> LOW, RS -> LOW, E -> LOW
+
+	LCD_init();
 
 	while(1)
 	{
@@ -50,6 +122,7 @@ int main(void)
 			PORTA = num[3];
 			_delay_ms(100);
 			buzzer();
+			show();
 		}
 		else if(distance <= 80)
 		{
