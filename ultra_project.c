@@ -6,7 +6,7 @@
 #define SOUND_VELOCITY 340UL
 
 unsigned char num[4]= { 0x06,0x5b,0x4f,0x66};
-
+int toggle = 0;
 void Command_write(uint8_t command)
 
 {
@@ -67,11 +67,11 @@ void LCD_print(char *str)
 
 void show()
 {
-		// set the cursor to column 0, line 1
-		Command_write(0x80);
-		// Print a message to the LCD.
-		LCD_print("Danger!!");
-		_delay_ms(1000);
+	// set the cursor to column 0, line 1
+	Command_write(0x80);
+	// Print a message to the LCD.
+	LCD_print("Danger!!");
+	_delay_ms(1000);
 }
 
 void buzzer()
@@ -85,64 +85,80 @@ void buzzer()
 
 }
 
+// 시작버튼 외부인터럽트
+SIGNAL(INT4_vect)
+{
+	int toggle = 1;
+}
+// 스탑버튼 외부인터럽트
+SIGNAL(INT5_vect)
+{
+	int toggle = 2;
+}
 
 int main(void)
 {
 	unsigned int distance;
 	DDRC = 0xFF;	// data Output
-
 	DDRG = 0x07;	// control signal Output
-
 	PORTG = 0x00;	// RW -> LOW, RS -> LOW, E -> LOW
-
+	PORTE = 0x00; // 버튼
 	LCD_init();
-
 	while(1)
 	{
-		DDRD = 0xff;
-		DDRD = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); // 초음파센서
-		DDRA =0xff;
-		TCCR1B = 0x03;
-		PORTD &= ~(1<<TRIG);
-		_delay_us(10);
-		PORTD |= (1<<TRIG);
-		_delay_us(10);
-		PORTD &= ~(1<<TRIG);
-		while(!(PIND & (1<<ECHO)));
-		TCNT1 = 0x0000;
-		while(PIND & (1<<ECHO));
-		TCCR1B = 0x00;
-		distance = (unsigned int)(SOUND_VELOCITY * (TCNT1 * 4 / 2) / 1000);
+		if(toggle == 1)
+		{
+			DDRD = 0xff;
+			DDRD = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); // 초음파센서
+			DDRA =0xff;
+			TCCR1B = 0x03;
+			PORTD &= ~(1<<TRIG);
+			_delay_us(10);
+			PORTD |= (1<<TRIG);
+			_delay_us(10);
+			PORTD &= ~(1<<TRIG);
+			while(!(PIND & (1<<ECHO)));
+			TCNT1 = 0x0000;
+			while(PIND & (1<<ECHO));
+			TCCR1B = 0x00;
+			distance = (unsigned int)(SOUND_VELOCITY * (TCNT1 * 4 / 2) / 1000);
 
-		//음파의 속도는 340m/s 이므로 1cm를 이동하는데 약 29us.
-		// 4/2 = 왕복거리
-		if(distance <= 50)
-		{
-			PORTD = 0xf0;
-			PORTA = num[3];
-			_delay_ms(100);
-			buzzer();
-			show();
+			//음파의 속도는 340m/s 이므로 1cm를 이동하는데 약 29us.
+			// 4/2 = 왕복거리
+			if(distance <= 50)
+			{
+				PORTD = 0xf0;
+				PORTA = num[3];
+				_delay_ms(100);
+				buzzer();
+				show();
+			}
+			else if(distance <= 80)
+			{
+				PORTD = 0x70;
+				PORTA = num[2];
+				_delay_ms(100);
+			}
+			else if(distance <= 100 )
+			{
+				PORTD = 0x30;
+				PORTA = num[1];
+				_delay_ms(100);
+			}
+			else if(distance <= 130)
+			{
+				PORTD = 0x10;
+				PORTA = num[0];
+				_delay_ms(100);
+			}
+			_delay_ms(10); //
 		}
-		else if(distance <= 80)
+		if(toggle ==2)
 		{
-			PORTD = 0x70;
-			PORTA = num[2];
-			_delay_ms(100);
+			DDRD = 0x00; //led off
+			DDRB = 0x00; // buzzer off
+			_delay_ms(300);
 		}
-		else if(distance <= 100 )
-		{
-			PORTD = 0x30;
-			PORTA = num[1];
-			_delay_ms(100);
-		}
-		else if(distance <= 130)
-		{
-			PORTD = 0x10;
-			PORTA = num[0];
-			_delay_ms(100);
-		}
-		_delay_ms(10); //
 
 	}
 }
