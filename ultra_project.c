@@ -1,11 +1,12 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include <interrupt.h>
 #define TRIG 0
 #define ECHO 1
 #define SOUND_VELOCITY 340UL
 
-unsigned char num[4]= { 0x06,0x5b,0x4f,0x66};
+unsigned char num[4]= { 0x06,0x5b,0x4f,0x66}; // fnd숫자
 int toggle = 0;
 void Command_write(uint8_t command)
 
@@ -86,23 +87,28 @@ void buzzer()
 }
 
 // 시작버튼 외부인터럽트
-SIGNAL(INT4_vect)
+ISR(INT4_vect)
 {
 	int toggle = 1;
 }
 // 스탑버튼 외부인터럽트
-SIGNAL(INT5_vect)
+ISR(INT5_vect)
 {
 	int toggle = 2;
 }
 
+
 int main(void)
 {
 	unsigned int distance;
+    int result = 0;
 	DDRC = 0xFF;	// data Output
 	DDRG = 0x07;	// control signal Output
 	PORTG = 0x00;	// RW -> LOW, RS -> LOW, E -> LOW
 	PORTE = 0x00; // 버튼
+    EICRB = 0x0a; // 4,5번 falling edge
+    EIMSK = 0x30; // INT4-7까지 허용
+    sei();
 	LCD_init();
 	while(1)
 	{
@@ -151,7 +157,13 @@ int main(void)
 				PORTA = num[0];
 				_delay_ms(100);
 			}
-			_delay_ms(10); //
+            if (distance <=270)
+            {
+                result = distance / 30;
+                PORTA = num[result]; // 초음파센서 거리
+                _delay_ms(100);
+            }
+			_delay_ms(10);
 		}
 		if(toggle ==2)
 		{
