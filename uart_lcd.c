@@ -2,10 +2,8 @@
 #define F_CPU 16000000UL
 #define BAUDRATE(x) ((F_CPU / 16 / x) - 1)
 #include <stdio.h>
-#include <string.h>
-#include <util/delay.h>
+#include <delay.h>
 #include <io.h>
-#include <interrupt.h>
 
 int state = 0; // 상태값 변수
 char arr[10]; // 첫번째 단어 배열선언
@@ -40,15 +38,15 @@ unsigned char LCD_rCommand(void){
 	cbi(LCD_CON, LCD_RS); // 0번 비트 클리어, RS = 0, 명령
 	sbi(LCD_CON, LCD_RW); // 1번 비트 설정, RW = 1, 읽기
 	sbi(LCD_CON, LCD_E);  // 2번 비트 설정, E = 1
-	_delay_us(1);
+	delay_us(1);
 	
 	temp = LCD_DATA_IN;      // 명령 읽기
-	_delay_us(1);
+	delay_us(1);
 	
 	cbi(LCD_CON, LCD_E);  // 명령 읽기 동작 끝
 	
 	LCD_DATA_DIR = 0XFF;
-	_delay_us(1);
+	delay_us(1);
 	
 	return temp;
 }
@@ -66,24 +64,24 @@ void LCD_wCommand(char cmd)
 	cbi(LCD_CON, LCD_RW); // 1번 비트 클리어, RW = 0, 쓰기
 	sbi(LCD_CON, LCD_E);  // 2번 비트 설정, E = 1
 	LCD_DATA = cmd;          // 명령 출력
-	_delay_us(1);
+	delay_us(1);
 	cbi(LCD_CON, LCD_E);  // 명령 쓰기 동작 끝
-	_delay_us(1);
+	delay_us(1);
 }
 
 // 텍스트 LCD에 명령을 출력하는 함수 - 단, 비지플래그 체크함
 void LCD_wBCommand(char cmd)
 {
 	while(LCD_BusyCheck(LCD_rCommand()))
-	_delay_us(1);
+	delay_us(1);
 	cbi(LCD_CON, LCD_RS); // 0번 비트 클리어, RS = 0, 명령
 	cbi(LCD_CON, LCD_RW); // 1번 비트 클리어, RW = 0, 쓰기
 	sbi(LCD_CON, LCD_E);  // 2번 비트 설정, E = 1
 	
 	LCD_DATA = cmd;          // 명령 출력
-	_delay_us(1);
+	delay_us(1);
 	cbi(LCD_CON, LCD_E);  // 명령 쓰기 동작 끝
-	_delay_us(1);
+	delay_us(1);
 }
 
 void LCD_Cursor(char col, char row)
@@ -94,16 +92,16 @@ void LCD_Cursor(char col, char row)
 // 텍스트 LCD를 초기화하는 함수
 void LCD_Init(void)
 {
-	_delay_ms(100);
+	delay_ms(100);
 	// 비지 플래그를 체크하지 않는 Function Set
 	LCD_wCommand(0x38);
-	_delay_ms(10);
+	delay_ms(10);
 	// 비지 플래그를 체크하지 않는 Function Set
 	LCD_wCommand(0x38);
-	_delay_us(200);
+	delay_us(200);
 	// 비지 플래그를 체크하지 않는 Function Set
 	LCD_wCommand(0x38);
-	_delay_us(200);
+	delay_us(200);
 	
 	// 비지 플래그를 체크하는 Function Set
 	LCD_wBCommand(0x38);
@@ -117,15 +115,15 @@ void LCD_wData(char dat)
 {
 	while(LCD_BusyCheck(LCD_rCommand()))
 	{
-		_delay_us(1);
+		delay_us(1);
 	}
 	sbi(LCD_CON, LCD_RS);
 	cbi(LCD_CON, LCD_RW);
 	sbi(LCD_CON, LCD_E);
 	LCD_DATA = dat;
-	_delay_us(1);
+	delay_us(1);
 	cbi(LCD_CON, LCD_E);
-	_delay_us(1);
+	delay_us(1);
 }
 
 // 문자열 LCD에 출력하기
@@ -172,17 +170,17 @@ int main(void)
         LCD_Init(); // LCD 초기화
         LCD_Cursor(0,2); // LCD 커서 위치 
         LCD_wString(arr); // 첫번째 단어 출력
-        _delay_ms(500); // 0.5초 딜레이
+        delay_ms(500); // 0.5초 딜레이
 
         LCD_Cursor(1,2); // LCD 커서 위치
         LCD_wString(arr2); // 두번째 단어 출력
-		_delay_ms(500); // 0.5초 딜레이
+		delay_ms(500); // 0.5초 딜레이
 
         if((PIND & 0x01) == 0) // 버튼을 누르면
         {
             LCD_Init(); // LCD 초기화
-            _delay_ms(1000); // 1초 딜레이
-            exit(1); 끝내기 
+            delay_ms(1000); // 1초 딜레이
+            exit(1);
         }
 				
 			
