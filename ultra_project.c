@@ -1,12 +1,12 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
-#include <interrupt.h>
+#include <avr/interrupt.h>
 #define TRIG 0
 #define ECHO 1
 #define SOUND_VELOCITY 340UL
 
-unsigned char num[4]= { 0x06,0x5b,0x4f,0x66}; // fnd숫자
+unsigned char num[10]= { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x27, 0x7f,0x67}; // fnd숫자
 int toggle = 0;
 void Command_write(uint8_t command)
 
@@ -86,35 +86,27 @@ void buzzer()
 
 }
 
-// 시작버튼 외부인터럽트
-ISR(INT4_vect)
-{
-	int toggle = 1;
-}
-// 스탑버튼 외부인터럽트
-ISR(INT5_vect)
-{
-	int toggle = 2;
-}
-
 
 int main(void)
 {
 	unsigned int distance;
-    int result = 0;
+	int result = 0;
 	DDRC = 0xFF;	// data Output
 	DDRG = 0x07;	// control signal Output
 	PORTG = 0x00;	// RW -> LOW, RS -> LOW, E -> LOW
 	PORTE = 0x00; // 버튼
-    EICRB = 0x0a; // 4,5번 falling edge
-    EIMSK = 0x30; // INT4-7까지 허용
-    sei();
+	EICRB = 0xff;
+	EICRA = 0x00;
+	EIMSK = 0xf0; // INT4-7까지 허용
+	EIFR = 0xf0;
+	sei();
 	LCD_init();
 	while(1)
 	{
+		DDRD = 0xff;
 		if(toggle == 1)
 		{
-			DDRD = 0xff;
+			
 			DDRD = ((DDRE | (1<<TRIG)) & ~(1<<ECHO)); // 초음파센서
 			DDRA =0xff;
 			TCCR1B = 0x03;
@@ -134,7 +126,6 @@ int main(void)
 			if(distance <= 50)
 			{
 				PORTD = 0xf0;
-				PORTA = num[3];
 				_delay_ms(100);
 				buzzer();
 				show();
@@ -142,35 +133,50 @@ int main(void)
 			else if(distance <= 80)
 			{
 				PORTD = 0x70;
-				PORTA = num[2];
 				_delay_ms(100);
 			}
 			else if(distance <= 100 )
 			{
 				PORTD = 0x30;
-				PORTA = num[1];
 				_delay_ms(100);
 			}
 			else if(distance <= 130)
 			{
 				PORTD = 0x10;
-				PORTA = num[0];
 				_delay_ms(100);
 			}
-            if (distance <=270)
-            {
-                result = distance / 30;
-                PORTA = num[result]; // 초음파센서 거리
-                _delay_ms(100);
-            }
+			if (distance <=270)
+			{
+				result = distance / 30;
+				PORTA = num[result]; // 초음파센서 거리
+				_delay_ms(100);
+			}
 			_delay_ms(10);
 		}
 		if(toggle ==2)
 		{
 			DDRD = 0x00; //led off
 			DDRB = 0x00; // buzzer off
+			PORTA = num[0];
 			_delay_ms(300);
 		}
 
 	}
+}
+
+
+SIGNAL(INT4_vect)
+{
+	cli();
+	toggle = 1;
+
+	sei();
+}
+
+
+SIGNAL(INT5_vect)
+{
+	cli();
+	toggle = 2;
+	sei();
 }
