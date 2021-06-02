@@ -100,6 +100,8 @@ void buzzer()
 
 int main(void)
 {
+    DDRB = 0x38;
+    PORTB = 0;
 	DDRC = 0xFF;	// data Output
 	DDRG = 0x07;	// control signal Output
 	PORTG = 0x00;	// RW -> LOW, RS -> LOW, E -> LOW
@@ -109,7 +111,13 @@ int main(void)
 	DDRD = 0xff;
 	PORTC = 0x00;
 	EIMSK = 0xf0; // INT4-7까지 허용
-	EIFR = 0xf0;
+	EIFR = 0xf0; // 버튼 
+    /* DC모터 PWM설정*/
+    TCCR1B = 0x02;
+    TCCR1A = 0x83;
+    TCCR1C = 0;
+    TCNT1 = 0x0000;
+    OCR1A = 400;
 	sei();
 	_delay_ms(1000);
 	LCD_init();
@@ -120,7 +128,7 @@ int main(void)
 		if(toggle== 4)
 		{
 			toggle = 4;
-			PORTB = 0x08;
+			PORTB = 0x08; // 모터 구동
 			_delay_ms(100);
 			for(int j=0;j<4;j++)
 			{
@@ -155,7 +163,7 @@ int main(void)
 		if(toggle == 5)
 		{
 			toggle = 5;
-			PORTB = 0x00;
+			PORTB = 0x00; // 모터 stop
 			PORTD = 0xff; // led,초음파센서 off
 			PORTG = 0x00; // 부저 off
 			_delay_us(500);
