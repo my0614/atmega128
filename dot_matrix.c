@@ -89,9 +89,9 @@ int main(void){
 			PORTD = 0x02; // Y led
 			_delay_ms(2000);
 			PORTD = 0x04; // R led
-			show(G);
+			show('G');
 			_delay_ms(10000);
-			show(Y);
+			show('Y');
 			_delay_ms(2000);
 			toggle =2;
 		}
