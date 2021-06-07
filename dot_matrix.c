@@ -4,7 +4,7 @@
 // _delay_ms() 함수 등이 정의되어 있음
 #include<util/delay.h>
  
-char Y[] = {
+char Y[8] = {
         0B10000010,
         0B01000100,
         0B00101000,
@@ -15,7 +15,7 @@ char Y[] = {
         0B00010000
     };
 
-char G[] = {
+char G[8] = {
         0B00000000,
         0B00000000,
         0B11111110,
@@ -26,7 +26,18 @@ char G[] = {
         0B01111110
     };
 
-char G[] = {
+char N[8] = {
+        0B00000000,
+        0B00000000,
+        0B00000000,
+        0B00000000,
+        0B00000000,
+        0B00000000,
+        0B00000000,
+        0B00000000
+    };
+
+char G[8] = {
         0B11111111,
         0B10000001,
         0B11111111,
@@ -53,6 +64,7 @@ int show(char name)
 
 // C 언어의 주 실행 함수
 int main(void){
+	int toggle = 0;
 	DDRD = 0xff; // led 출력 (G :0x01, Y:0x02, R:0x04)
 	DDRF = 0x00; // 버튼 입력
 
@@ -66,13 +78,26 @@ int main(void){
 
 		if((PINF & 0x01) == 0) // 버튼을 클릭했으면
 		{
+			toggle = 1;
+		}
+		else
+		{
+			toggle = 2;
+		}
+		if(toggle == 1)
+		{
 			PORTD = 0x02; // Y led
 			_delay_ms(2000);
 			PORTD = 0x04; // R led
-			show(&G);
+			show(G);
 			_delay_ms(10000);
-			show(&Y);
+			show(Y);
 			_delay_ms(2000);
+			toggle =2;
+		}
+		if(toggle ==2)
+		{
+			show(N);
 		}
     }
  
