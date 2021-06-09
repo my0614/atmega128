@@ -35,11 +35,13 @@ ISR(USART0_RX_vect)
 int main(void)
 {
 	unsigned int distance;
+    float result = 0;
 	uart_init(BAUDRATE(9600));
     sei();
 	DDRC = 0xff;
 	DDRD = ((DDRD | (1<<TRIG)) & ~(1<<ECHO));
-	int value[4] = {0,};
+	char value[20] = {0,};
+    
 	while(1)
 	{
 		
@@ -66,8 +68,10 @@ int main(void)
             PORTC = 0x02;
 			_delay_ms(100);
         }
-        sprintf(value, "dis = %d",distance);
+        result = distance/10;
+        sprintf(value, "dis = %d (cm)",distance);
         uart_string(value);
+        
         _delay_ms(1000);
 		
 	}
