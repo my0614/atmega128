@@ -4,20 +4,40 @@
 
 // led나 세그먼트가 배열을 사용하여 0부터 사용하기 때문에 그전인 -1을 초기화로 설정
 int cnt = -1;
-//1~8까지 숫자표현
-char seg[8] = {0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f};
+
+
+int seg[9] = {0b00111111,
+
+	0b00000110,
+
+	0b01011011,
+
+	0b01001111,
+
+	0b01100110,
+
+	0b01101101,
+
+	0b01111101,
+
+	0b00100111,
+
+	0b01111111,
+
+
+};
 
 // led 1~8까지 표현
 unsigned char led_cnt[8] =
 {
-    ob00000001, //1
-    ob00000010, //2
-    ob00000100, //3
-    ob00001000, //4
-    ob00010000, //5
-    ob00100000, //6
-    ob01000000, //7
-    ob10000000 //8
+    0b00000001, //1
+    0b00000010, //2
+    0b00000100, //3
+    0b00001000, //4
+    0b00010000, //5
+    0b00100000, //6
+    0b01000000, //7
+    0b10000000 //8
 };
 
 // 버튼 1
@@ -45,7 +65,8 @@ interrupt [EXT_INT1] void ext_int1_i(void)
 void main(void)
 {
     DDRA = 0xff; // led 출력설정
-    DDRB = 0xff; // 7세그먼트 출력설정
+    DDRB = 0xff; // 7세그먼트 출력설정 
+    DDRD = 0xff; // 세그먼트 자리수 
     // 외부인터럽트 설정
     EICRA=0x0a; // 외부인터럽트 INT0~3까지 (Falling Edge)
     EICRB=0x00; // 외부인터럽트 INT4~7까지 (Rising Edge)
@@ -56,10 +77,22 @@ void main(void)
     {
         //cnt가 -1이 아닐때 즉,(증가 버튼을 눌렀을 때부터) 버튼이 누르기 전에는 아무것도 안됨
         if(cnt != -1)
-        {
+        {                             
+            PORTD = 0x01;
+            PORTB = seg[0]; 
+            delay_ms(1);
+            PORTD = 0x02;
+            PORTB = seg[0]; 
+            delay_ms(1);
+            PORTD = 0x04;
+            PORTB = seg[0];
+            delay_ms(1);
+            PORTD = 0x08;
+            PORTB = seg[9-cnt]; // seg배열에 있는 cnt인덱스로 세그먼트 숫자 출력하기
+            delay_ms(1);
             PORTA = led_cnt[cnt]; // led_cnt배열에 있는 cnt인덱스로 led켜기
-            PORTB = seg[cnt]; // seg배열에 있는 cnt인덱스로 세그먼트 숫자 출력하기
             delay_ms(500); // 0.5초 delay
         }
     }
 }
+
